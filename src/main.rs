@@ -1,5 +1,8 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use tera::Tera;
+use dotenv::dotenv;
+mod db;
+use db::connect::connect_to_db;
 
 
 #[get("/")]
@@ -30,6 +33,10 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().ok();
+    let db = connect_to_db().await.expect("Failed to connect to database");
+    println!("Connected to database: {:?}", db.name());
+
     HttpServer::new(|| {
         App::new()
             .service(hello)
