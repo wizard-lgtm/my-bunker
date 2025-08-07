@@ -1,4 +1,6 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use tera::Tera;
+
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -11,7 +13,19 @@ async fn echo(req_body: String) -> impl Responder {
 }
 
 async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
+    let tera = match Tera::new("./src/views/**/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            println!("Parsing error(s): {}", e);
+            ::std::process::exit(1);
+        }
+    };
+
+    let context = tera::Context::new();
+    // Use the template name relative to the glob root
+    let html = tera.render("index.html", &context).unwrap();
+
+    HttpResponse::Ok().content_type("text/html").body(html)
 }
 
 #[actix_web::main]

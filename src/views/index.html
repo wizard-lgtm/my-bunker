@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>distant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1a1f1a 0%, #2d3a2d 30%, #3d4a3d 70%, #4a5a4a 100%);
+            min-height: 100vh;
+            color: #c8d4c8;
+            overflow-x: hidden;
+        }
+        
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.25;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(200,212,200,0.4) 1px, transparent 1px),
+                radial-gradient(circle at 80% 80%, rgba(0,0,0,0.6) 1px, transparent 1px),
+                radial-gradient(circle at 40% 60%, rgba(200,212,200,0.3) 1px, transparent 1px),
+                linear-gradient(45deg, transparent 40%, rgba(200,212,200,0.1) 50%, transparent 60%);
+            background-size: 3px 3px, 5px 5px, 2px 2px, 20px 20px;
+            pointer-events: none;
+            z-index: 1;
+            animation: grain 0.5s steps(8) infinite;
+        }
+        
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-1px, -1px); }
+            20% { transform: translate(1px, 1px); }
+            30% { transform: translate(-1px, 1px); }
+            40% { transform: translate(1px, -1px); }
+            50% { transform: translate(-1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            70% { transform: translate(-1px, 1px); }
+            80% { transform: translate(1px, -1px); }
+            90% { transform: translate(-1px, -1px); }
+        }
+        
+        .header {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .site-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.2rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            opacity: 0.95;
+            text-shadow: 
+                0 0 10px rgba(200,212,200,0.3),
+                0 2px 4px rgba(0,0,0,0.8);
+            text-transform: lowercase;
+        }
+        
+        .site-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 300;
+            opacity: 0.6;
+            letter-spacing: 0.08em;
+            margin-bottom: 3rem;
+            text-transform: lowercase;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .nav a {
+            color: #c8d4c8;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 300;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            position: relative;
+            text-transform: lowercase;
+        }
+        
+        .nav a:hover {
+            opacity: 1;
+            text-shadow: 0 0 8px rgba(200,212,200,0.5);
+        }
+        
+        .nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #c8d4c8;
+            box-shadow: 0 0 4px rgba(200,212,200,0.6);
+            transition: width 0.3s ease;
+        }
+        
+        .nav a:hover::after {
+            width: 100%;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .featured-post {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 212, 200, 0.15);
+            border-radius: 4px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 16px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(200,212,200,0.1);
+        }
+        
+        .featured-post:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: rgba(200, 212, 200, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 24px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(200,212,200,0.15);
+        }
+        
+        .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+            text-transform: lowercase;
+            color: #a8b4a8;
+        }
+        
+        .post-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+            color: #e8f4e8;
+        }
+        
+        .post-excerpt {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+            color: #c8d4c8;
+        }
+        
+        .read-more {
+            color: #a8b4a8;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 400;
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            text-transform: lowercase;
+        }
+        
+        .read-more:hover {
+            opacity: 1;
+            color: #c8d4c8;
+            text-shadow: 0 0 6px rgba(200,212,200,0.4);
+        }
+        
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .post-card {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(200, 212, 200, 0.1);
+            border-radius: 4px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 2px 8px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(200,212,200,0.05);
+        }
+        
+        .post-card:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(200, 212, 200, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 16px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(200,212,200,0.1);
+        }
+        
+        .post-card .post-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .post-card .post-excerpt {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            opacity: 0.5;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-dot {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: rgba(200, 212, 200, 0.4);
+            border-radius: 50%;
+            animation: float 12s infinite ease-in-out;
+            box-shadow: 0 0 4px rgba(200,212,200,0.3);
+        }
+        
+        .floating-dot:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-dot:nth-child(2) { top: 60%; left: 85%; animation-delay: 2s; }
+        .floating-dot:nth-child(3) { top: 40%; left: 15%; animation-delay: 4s; }
+        .floating-dot:nth-child(4) { top: 80%; left: 70%; animation-delay: 6s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+        }
+        
+        @media (max-width: 768px) {
+            .site-title {
+                font-size: 2.5rem;
+            }
+            
+            .nav {
+                gap: 2rem;
+                flex-wrap: wrap;
+            }
+            
+            .featured-post {
+                padding: 2rem;
+            }
+            
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <div class="floating-elements">
+        <div class="floating-dot"></div>
+        <div class="floating-dot"></div>
+        <div class="floating-dot"></div>
+        <div class="floating-dot"></div>
+    </div>
+    
+    <header class="header">
+        <h1 class="site-title">distant.echoes</h1>
+        <p class="site-subtitle">fragments of memory in digital form</p>
+    </header>
+    
+    <nav class="nav">
+        <a href="#home">home</a>
+        <a href="#archive">archive</a>
+        <a href="#thoughts">thoughts</a>
+        <a href="#about">about</a>
+    </nav>
+    
+    <div class="container">
+        <article class="featured-post">
+            <div class="post-meta">March 15, 2024 • 4 min read</div>
+            <h2 class="post-title">The Weight of Quiet Moments</h2>
+            <p class="post-excerpt">
+                There's something profound about the spaces between words, the pauses that stretch 
+                like afternoon shadows across memory. In these quiet moments, we find ourselves 
+                suspended between what was and what might be, caught in the amber of reflection. 
+                The world moves slower here, in this liminal space where thoughts drift like dust 
+                particles in late sunlight...
+            </p>
+            <a href="#" class="read-more">continue reading →</a>
+        </article>
+        
+        <div class="posts-grid">
+            <article class="post-card">
+                <div class="post-meta">March 8, 2024 • 2 min read</div>
+                <h3 class="post-title">Faded Photographs</h3>
+                <p class="post-excerpt">
+                    Found a box of old photos today. The edges are yellowed, corners bent with time. 
+                    Each image holds a story that feels both mine and foreign, like remembering 
+                    someone else's dream...
+                </p>
+                <a href="#" class="read-more">read more →</a>
+            </article>
+            
+            <article class="post-card">
+                <div class="post-meta">February 28, 2024 • 3 min read</div>
+                <h3 class="post-title">Rain Against Windows</h3>
+                <p class="post-excerpt">
+                    The rhythm of rain has always been a comfort. Tonight it drums against the glass, 
+                    creating patterns that shift and blur like watercolor paintings. I find myself 
+                    tracing the paths of droplets...
+                </p>
+                <a href="#" class="read-more">read more →</a>
+            </article>
+            
+            <article class="post-card">
+                <div class="post-meta">February 14, 2024 • 5 min read</div>
+                <h3 class="post-title">Songs from Another Time</h3>
+                <p class="post-excerpt">
+                    Music has a way of collapsing time. A melody can transport you instantly to 
+                    another place, another version of yourself. Today I heard a song that reminded 
+                    me of summer evenings and the weight of possibility...
+                </p>
+                <a href="#" class="read-more">read more →</a>
+            </article>
+            
+            <article class="post-card">
+                <div class="post-meta">January 30, 2024 • 2 min read</div>
+                <h3 class="post-title">Empty Rooms</h3>
+                <p class="post-excerpt">
+                    There's a particular quality to empty rooms - the way sound carries differently, 
+                    how light falls without obstruction. They hold potential and absence in equal 
+                    measure, waiting to be filled with new stories...
+                </p>
+                <a href="#" class="read-more">read more →</a>
+            </article>
+        </div>
+    </div>
+    
+            <footer class="footer">
+        <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 0.05em;">© 2024 distant.echoes • all rights reserved</p>
+    </footer>
+</body>
+</html>
