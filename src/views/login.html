@@ -79,6 +79,8 @@
           const text = await response.text();
 
           if (response.ok) {
+            localStorage.setItem("token", text); // Store the JWT token
+            window.location.href = "/"; // Redirect to dashboard
             responseMessage.style.color = "green";
           } else {
             responseMessage.style.color = "red";

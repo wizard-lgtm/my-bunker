@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{get, http, post, web, HttpResponse, Responder};
 
 use crate::{utils::password::{hash_password}, AppState, LoginPostData};
 
@@ -19,7 +19,19 @@ pub async fn login(user: web::Json<LoginPostData>, data: web::Data<AppState>) ->
             // Verify the password
             if db_user.password == hashed_user_password {
                 println!("User {} logged in successfully", user.username);
-                return HttpResponse::Ok().body("Login successful");
+
+                // Generate JWT token
+                match crate::utils::jwt::generate_jwt(&db_user.username) {
+                    Ok(token) => {
+                        println!("JWT token generated successfully for user: {}", db_user.username);
+
+                        return HttpResponse::Ok().body(token);
+                    }
+                    Err(e) => {
+                        println!("Error generating JWT token: {}", e);
+                        return HttpResponse::InternalServerError().body("Internal server error");
+                    }
+                }
             } else {
                 println!("Invalid password for user: {}", user.username);
                 return HttpResponse::Unauthorized().body("Invalid username or password");

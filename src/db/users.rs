@@ -27,7 +27,7 @@ impl UserRepo {
         self.collection.find_one(doc!{"username": username}).await
     }
     pub async fn get_all_users(&self) -> mongodb::error::Result<()> {
-        let mut cursor = self.collection.find(doc! {}).await?;
+        let cursor = self.collection.find(doc! {}).await?;
         let mut users = Vec::new();
         cursor.current().iter().for_each(|user| {
             if let Ok(user) = user {

@@ -6,6 +6,7 @@ use std::{env, sync::Arc};
 mod routes;
 use routes::user::{login, login_form};
 
+
 pub mod db;
 use db::{connect::connect_to_db, Db};
 pub mod utils;
@@ -15,15 +16,6 @@ struct AppState {
     tera: Tera
 }
 
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[post("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
-}
 
 #[derive(serde::Deserialize)]
 struct LoginPostData {
@@ -31,7 +23,7 @@ struct LoginPostData {
     password: String,
 }
 
-async fn manual_hello(data: web::Data<AppState>) -> impl Responder {
+async fn home(data: web::Data<AppState>) -> impl Responder {
     let context = tera::Context::new();
     match data.tera.render("index.html", &context) {
         Ok(html) => HttpResponse::Ok()
@@ -73,11 +65,10 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(Files::new("/public", "./public").show_files_listing())
             .app_data(app_state.clone())
-            .service(hello)
-            .service(echo)
+
             .service(login)
             .service(login_form)
-            .route("/hey", web::get().to(manual_hello))
+            .route("/", web::get().to(home))
     })
     .bind(("127.0.0.1", port))?
     .run()
