@@ -1,6 +1,6 @@
 use mongodb::{bson::doc, bson::oid::ObjectId, Collection, Database};
 use serde::{Deserialize, Serialize};
-use crate::utils::password::{hash_password, verify_password};
+use crate::utils::password::{hash_password};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct User {
@@ -22,20 +22,29 @@ impl UserRepo {
     }
 
     pub async fn get_user(&self, username: &str) -> mongodb::error::Result<Option<User>> {
-        self.collection.find_one(doc!{username: username}).await
+        self.get_all_users().await?;
+        println!("Fetching user with username: {}", username);
+        self.collection.find_one(doc!{"username": username}).await
+    }
+    pub async fn get_all_users(&self) -> mongodb::error::Result<()> {
+        let mut cursor = self.collection.find(doc! {}).await?;
+        let mut users = Vec::new();
+        cursor.current().iter().for_each(|user| {
+            if let Ok(user) = user {
+                users.push(user);
+            }
+        });
+        println!("Fetching all users from the database");
+        println!("Users found: {}", users.len());
+        if users.is_empty() {
+            println!("No users found in the database.");    
+        } else {
+            println!("Users found: {:?}", users);
+        }
+        Ok(())
     }
 
-    pub async fn verify_password(
-        &self,
-        username: &str,
-        password: &str,
-    ) -> mongodb::error::Result<bool> {
-        if let Some(user) = self.get_user(username).await? {
-            Ok(verify_password(password, &user.password))
-        } else {
-            Ok(false)
-        }
-    }
+
 
     pub async fn set_user(&self, username: &str, password: &str) -> mongodb::error::Result<()> {
         let hashed = hash_password(password);

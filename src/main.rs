@@ -3,10 +3,11 @@ use actix_files::Files;
 use tera::Tera;
 use dotenv::dotenv;
 use std::{env, sync::Arc};
+mod routes;
+use routes::user::{login, login_form};
 
 pub mod db;
 use db::{connect::connect_to_db, Db};
-use crate::utils::password::{verify_password as verify_password_hash};
 pub mod utils;
 
 struct AppState {
@@ -28,44 +29,6 @@ async fn echo(req_body: String) -> impl Responder {
 struct LoginPostData {
     username: String,
     password: String,
-}
-
-#[post("/login")]
-async fn login(user: web::Json<LoginPostData>, data: web::Data<AppState>) -> impl Responder {
-    let user_repo = &data.db.user_repo;
-    match user_repo.get_user(&user.username).await {
-        Ok(Some(db_user)) => {
-            if verify_password_hash(&user.password, &db_user.password){
-                return HttpResponse::Ok().body("Login successful");
-            } else {
-                return HttpResponse::Unauthorized().body("Invalid password");
-            }
-        }
-        Ok(None) => {
-            return HttpResponse::NotFound().body("User not found");
-        }
-        Err(e) => {
-            println!("Error fetching user: {}", e);
-            return HttpResponse::InternalServerError().body("Internal server error");
-        }
-
-    }
-}
-
-#[get("/login")]
-async fn login_form(data: web::Data<AppState>) -> impl Responder {
-    let mut context = tera::Context::new();
-    context.insert("title", "Login Page");
-
-    match data.tera.render("login.html", &context) {
-        Ok(html) => HttpResponse::Ok()
-            .content_type("text/html")
-            .body(html),
-        Err(e) => {
-            println!("Template error: {}", e);
-            HttpResponse::InternalServerError().body("Template error")
-        }
-    }
 }
 
 async fn manual_hello(data: web::Data<AppState>) -> impl Responder {
@@ -115,7 +78,6 @@ async fn main() -> std::io::Result<()> {
             .service(login)
             .service(login_form)
             .route("/hey", web::get().to(manual_hello))
-            // .route("/users", web::get().to(get_users)) // Remove or implement get_users
     })
     .bind(("127.0.0.1", port))?
     .run()
