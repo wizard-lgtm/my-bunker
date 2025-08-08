@@ -1,5 +1,7 @@
-use mongodb::{Client, Database};
-pub async fn connect_to_db() -> Result<Database, mongodb::error::Error> {
+use mongodb::{Client};
+
+use crate::db::{users, Db};
+pub async fn connect_to_db() -> Result<Db, mongodb::error::Error> {
     let uri = match std::env::var("MONGODB_URI"){
         Ok(uri) => uri,
         Err(_) => {
@@ -16,5 +18,9 @@ pub async fn connect_to_db() -> Result<Database, mongodb::error::Error> {
     };
     let client = Client::with_uri_str(uri).await?;
     let db = client.database(&db_name);
-    Ok(db)
+
+    let db_repo = Db {
+        user_repo: users::UserRepo::new(&db),
+    };
+    Ok(db_repo)
 }
